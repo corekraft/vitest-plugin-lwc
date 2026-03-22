@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "eslint **/{aura,lwc}/**/*.js",
     "test": "npm run test:unit",
-    "test:unit": "sfdx-lwc-jest",
+    "test:unit": "vitest run",
+    "test:unit:old": "sfdx-lwc-jest",
     "test:unit:watch": "sfdx-lwc-jest --watch",
     "test:unit:debug": "sfdx-lwc-jest --debug",
     "test:unit:coverage": "sfdx-lwc-jest --coverage",
@@ -22,13 +23,15 @@
     "@salesforce/eslint-plugin-aura": "3.0.0",
     "@salesforce/eslint-plugin-lightning": "2.0.0",
     "@salesforce/sfdx-lwc-jest": "7.1.2",
+    "@vitest/coverage-v8": "^4.1.0",
     "eslint": "^9",
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-jest": "29.15.0",
     "husky": "9.1.7",
     "lint-staged": "16.4.0",
     "prettier": "3.8.1",
-    "prettier-plugin-apex": "2.2.6"
+    "prettier-plugin-apex": "2.2.6",
+    "vitest": "4.1.0"
   },
   "overrides": {
     "@tootallnate/once": "3.0.1"
@@ -41,7 +44,7 @@
       "eslint"
     ],
     "**/lwc/**": [
-      "sfdx-lwc-jest -- --bail --findRelatedTests --passWithNoTests"
+      "vitest run"
     ]
   }
 }
