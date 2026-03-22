@@ -8,7 +8,7 @@ const vitestTsconfig = JSON.parse(
 
 export default defineConfig({
   test: {
-    include: ['src/**/*.spec.ts', 'tests/**/*.test.ts'],
+    include: ['src/**/*.spec.ts'],
     exclude: ['**/node_modules/**', 'fixtures/**'],
     coverage: {
       provider: 'v8',

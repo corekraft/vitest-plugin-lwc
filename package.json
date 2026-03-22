@@ -8,6 +8,7 @@
     "build": "tsc",
     "test": "vitest run",
     "test:cov": "vitest run --coverage",
+    "test:e2e": "vitest run --config tests/vitest.config.ts",
     "prepare": "husky"
   },
   "keywords": [
