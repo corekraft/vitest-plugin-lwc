@@ -22,7 +22,7 @@ const fixtures = [
 ];
 
 describe("lwc plugin end to end", () => {
-  const createdLinkPaths: string[] = [];
+  const createdLinkPaths = [];
 
   beforeAll(() => {
     for (const fixture of fixtures) {
