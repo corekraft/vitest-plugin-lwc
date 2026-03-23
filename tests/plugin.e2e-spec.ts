@@ -1,12 +1,17 @@
+import { mkdirSync, rmSync, symlinkSync } from "node:fs";
 import { promisify } from "node:util";
 import { execFile } from "node:child_process";
 import path from "node:path";
 
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const execFileAsync = promisify(execFile);
 const packageRoot = path.resolve(import.meta.dirname, "..");
 const nodePath = [path.join(packageRoot, "node_modules"), process.env.NODE_PATH].filter(Boolean).join(path.delimiter);
+const fixturePackageLinkPaths = [
+  path.join(packageRoot, "fixtures/sfdx-project/node_modules/@corekraft/vitest-plugin-lwc"),
+  path.join(packageRoot, "fixtures/lwc-recipes/node_modules/@corekraft/vitest-plugin-lwc"),
+];
 
 const fixtures = [
   {
@@ -22,6 +27,20 @@ const fixtures = [
 ];
 
 describe("lwc plugin end to end", () => {
+  beforeAll(() => {
+    for (const linkPath of fixturePackageLinkPaths) {
+      mkdirSync(path.dirname(linkPath), { recursive: true });
+      rmSync(linkPath, { force: true, recursive: true });
+      symlinkSync(packageRoot, linkPath, "junction");
+    }
+  });
+
+  afterAll(() => {
+    for (const linkPath of fixturePackageLinkPaths) {
+      rmSync(linkPath, { force: true, recursive: true });
+    }
+  });
+
   for (const fixture of fixtures) {
     it(`runs the ${fixture.name} fixture test suite`, async () => {
       await expect(
