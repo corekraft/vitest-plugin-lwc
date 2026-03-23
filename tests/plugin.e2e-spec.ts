@@ -26,15 +26,21 @@ describe("lwc plugin end to end", () => {
 
   beforeAll(() => {
     for (const fixture of fixtures) {
-      const linkPath = path.join(fixture.root, "node_modules/@corekraft/vitest-plugin-lwc");
-      if (existsSync(linkPath)) {
-        continue;
-      }
+      const linkPaths = [
+        path.join(fixture.root, "node_modules/@corekraft/vitest-plugin-lwc"),
+        path.join(fixture.root, "node_modules/.vite-temp/node_modules/@corekraft/vitest-plugin-lwc"),
+      ];
 
-      mkdirSync(path.dirname(linkPath), { recursive: true });
-      rmSync(linkPath, { force: true, recursive: true });
-      symlinkSync(packageRoot, linkPath, "junction");
-      createdLinkPaths.push(linkPath);
+      for (const linkPath of linkPaths) {
+        if (existsSync(linkPath)) {
+          continue;
+        }
+
+        mkdirSync(path.dirname(linkPath), { recursive: true });
+        rmSync(linkPath, { force: true, recursive: true });
+        symlinkSync(packageRoot, linkPath, "junction");
+        createdLinkPaths.push(linkPath);
+      }
     }
   });
 

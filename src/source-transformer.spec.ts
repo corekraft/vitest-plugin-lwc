@@ -92,7 +92,10 @@ describe("SourceTransformer", () => {
     ) as { code: string; map: null };
 
     expect(result.code).toContain('import { vi } from "vitest";');
-    expect(result.code).toContain('vi.mock("foo", () => ({ value: vi.fn(), actual: await vi.importActual("foo") }));');
+    expect(result.code).toContain("const __vitestPluginLwcMockedModules");
+    expect(result.code).toContain(
+      '__vitestPluginLwcMockedModules.add("foo");\nvi.mock("foo", () => ({ value: vi.fn(), actual: await vi.importActual("foo") }));',
+    );
     expect(result.code).toContain('await vi.importActual("foo")');
     expect(result.map).toBeNull();
   });

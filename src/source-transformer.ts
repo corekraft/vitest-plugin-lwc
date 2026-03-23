@@ -73,10 +73,17 @@ function transformJestMockCalls(source: string): TransformResult | null {
       .replace(/vi\.mock\((['"`][^'"`]+['"`])\s*,\s*\(\)\s*=>\s*\{/g, "vi.mock($1, async () => {");
   }
 
+  rewritten = rewritten.replace(
+    /vi\.mock\((['"`][^'"`]+['"`])/g,
+    "__vitestPluginLwcMockedModules.add($1);\nvi.mock($1",
+  );
+
   const needsViImport = !rewritten.includes('from "vitest"') && !rewritten.includes("from 'vitest'");
+  const helperSource =
+    'const __vitestPluginLwcMockedModules = globalThis.__vitestPluginLwcMockedModules ?? (globalThis.__vitestPluginLwcMockedModules = new Set());\n';
 
   return {
-    code: needsViImport ? `import { vi } from "vitest";\n${rewritten}` : rewritten,
+    code: needsViImport ? `import { vi } from "vitest";\n${helperSource}${rewritten}` : `${helperSource}${rewritten}`,
     map: null,
   };
 }

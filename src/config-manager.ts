@@ -46,6 +46,7 @@ const { fakeTimerErrMsg, formatOptions, runA11yCheck } = sa11yMatcherPath
         throw new Error(missingA11yPackagesMessage);
       },
     };
+const mockedModules = globalThis.__vitestPluginLwcMockedModules ?? (globalThis.__vitestPluginLwcMockedModules = new Set());
 
 globalThis.jest = vi;
 
@@ -78,6 +79,10 @@ afterEach(() => {
   cleanupDom();
   vi.clearAllMocks();
   vi.clearAllTimers();
+  for (const id of mockedModules) {
+    vi.doUnmock(id);
+  }
+  mockedModules.clear();
 });
 
 afterAll(() => {
@@ -131,7 +136,7 @@ export class ConfigManager {
       },
       test: {
         ...currentTest,
-        isolate: currentTest["isolate"] ?? false,
+        isolate: currentTest["isolate"] ?? true,
         fileParallelism: currentTest["fileParallelism"] ?? true,
         globals: currentTest["globals"] ?? true,
         include: currentTest["include"] ?? ["**/lwc/**/*.test.js"],

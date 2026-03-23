@@ -91,7 +91,7 @@ describe("lwc plugin unit", () => {
           fileParallelism: true,
           globals: true,
           include: ["**/lwc/**/*.test.js"],
-          isolate: false,
+          isolate: true,
           reporters: "default",
           setupFiles: [".vitest-plugin-lwc/setup.mjs"],
         },
@@ -378,8 +378,9 @@ describe("lwc plugin unit", () => {
       ) as { code: string; map: null };
 
       expect(result.code).toContain('import { vi } from "vitest";');
+      expect(result.code).toContain("const __vitestPluginLwcMockedModules");
       expect(result.code).toContain(
-        'vi.mock("foo", () => ({ value: vi.fn(), actual: await vi.importActual("foo") }));',
+        '__vitestPluginLwcMockedModules.add("foo");\nvi.mock("foo", () => ({ value: vi.fn(), actual: await vi.importActual("foo") }));',
       );
       expect(result.code).toContain('await vi.importActual("foo")');
       expect(result.map).toBeNull();

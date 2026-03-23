@@ -43,7 +43,7 @@ describe("ConfigManager", () => {
         fileParallelism: true,
         globals: true,
         include: ["**/lwc/**/*.test.js"],
-        isolate: false,
+        isolate: true,
         reporters: "default",
         setupFiles: [".vitest-plugin-lwc/setup.mjs"],
       },
@@ -62,6 +62,7 @@ describe("ConfigManager", () => {
       test: {
         include: ["src/**/*.spec.ts"],
         setupFiles: ["./custom-setup.js"],
+        fileParallelism: true,
         reporters: "verbose",
       },
     });
@@ -74,6 +75,7 @@ describe("ConfigManager", () => {
         },
       },
       test: {
+        fileParallelism: true,
         include: ["src/**/*.spec.ts"],
         reporters: "verbose",
         setupFiles: [".vitest-plugin-lwc/setup.mjs", "./custom-setup.js"],
@@ -90,6 +92,10 @@ describe("ConfigManager", () => {
     expect(mockWriteFileSync).toHaveBeenCalledWith(
       expect.stringContaining(path.join(".vitest-plugin-lwc", "setup.mjs")),
       expect.stringContaining("globalThis.jest = vi;"),
+    );
+    expect(mockWriteFileSync).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.stringContaining("globalThis.__vitestPluginLwcMockedModules"),
     );
   });
 
