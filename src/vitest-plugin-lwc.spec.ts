@@ -175,7 +175,9 @@ describe("lwc plugin unit", () => {
 
   it("appends the plugin setup file without overwriting user setup files or coverage overrides", () => {
     const plugin = lwc();
-    const configHook = getHook<(config: Record<string, unknown>, env: unknown) => Record<string, unknown>>(plugin.config);
+    const configHook = getHook<(config: Record<string, unknown>, env: unknown) => Record<string, unknown>>(
+      plugin.config,
+    );
     const config = configHook.call(
       {},
       {
@@ -216,14 +218,16 @@ describe("lwc plugin unit", () => {
 
   it("writes the plugin-managed Vitest setup file into the project root", () => {
     const plugin = lwc();
-    const configHook = getHook<(config: Record<string, unknown>, env: unknown) => Record<string, unknown>>(plugin.config);
+    const configHook = getHook<(config: Record<string, unknown>, env: unknown) => Record<string, unknown>>(
+      plugin.config,
+    );
 
     configHook.call({}, {}, { command: "serve", mode: "test" });
 
     expect(mockMkdirSync).toHaveBeenCalledWith(expect.stringContaining(".vitest-plugin-lwc"), { recursive: true });
     expect(mockWriteFileSync).toHaveBeenCalledWith(
       expect.stringContaining(path.join(".vitest-plugin-lwc", "setup.mjs")),
-      expect.stringContaining('globalThis.jest = vi;'),
+      expect.stringContaining("globalThis.jest = vi;"),
     );
   });
 });

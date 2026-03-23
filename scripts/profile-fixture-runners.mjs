@@ -52,28 +52,16 @@ function runProfile(name, command, args, workdir, extraEnv = {}) {
 console.log(`Profiling with isolated caches under ${tempRoot}`);
 
 console.log("Starting Jest profile: npm run test:unit:jest");
-const jestResult = await runProfile(
-  "jest",
-  "npm",
-  ["run", "test:unit:jest"],
-  fixtureSource,
-  {
-    JEST_CACHE_DIR: path.join(tempRoot, "cache-jest"),
-    TMPDIR: jestTempDir,
-  },
-);
+const jestResult = await runProfile("jest", "npm", ["run", "test:unit:jest"], fixtureSource, {
+  JEST_CACHE_DIR: path.join(tempRoot, "cache-jest"),
+  TMPDIR: jestTempDir,
+});
 
 console.log("Starting Vitest profile: npm run test");
-const vitestResult = await runProfile(
-  "vitest",
-  "npm",
-  ["run", "test"],
-  fixtureSource,
-  {
-    VITE_CACHE_DIR: path.join(tempRoot, "cache-vitest"),
-    TMPDIR: vitestTempDir,
-  },
-);
+const vitestResult = await runProfile("vitest", "npm", ["run", "test"], fixtureSource, {
+  VITE_CACHE_DIR: path.join(tempRoot, "cache-vitest"),
+  TMPDIR: vitestTempDir,
+});
 
 console.log("");
 console.log("Profile summary");

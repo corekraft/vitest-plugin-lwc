@@ -296,8 +296,7 @@ function transformJestMockCalls(source: string): TransformResult | null {
       .replace(/vi\.mock\((['"`][^'"`]+['"`])\s*,\s*\(\)\s*=>\s*\{/g, "vi.mock($1, async () => {");
   }
 
-  const needsViImport =
-    !rewritten.includes('from "vitest"') && !rewritten.includes("from 'vitest'");
+  const needsViImport = !rewritten.includes('from "vitest"') && !rewritten.includes("from 'vitest'");
 
   return {
     code: needsViImport ? `import { vi } from "vitest";\n${rewritten}` : rewritten,
@@ -344,9 +343,7 @@ export function lwc(): Plugin {
           fileParallelism: currentTest["fileParallelism"] ?? true,
           globals: currentTest["globals"] ?? true,
           include: currentTest["include"] ?? ["**/lwc/**/*.test.js"],
-          setupFiles: setupFilesList.includes(setupFile)
-            ? setupFilesList
-            : [setupFile, ...setupFilesList],
+          setupFiles: setupFilesList.includes(setupFile) ? setupFilesList : [setupFile, ...setupFilesList],
           coverage: {
             provider: "v8",
             reporter: ["clover", "cobertura", "lcov", "text", "text-summary"],
