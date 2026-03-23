@@ -14,6 +14,7 @@ vi.mock("node:module", () => ({
   createRequire: mockCreateRequire,
 }));
 
+import { MISSING_TEMPLATE_PREFIX } from "./module-resolver.js";
 import { SourceTransformer } from "./source-transformer.js";
 
 describe("SourceTransformer", () => {
@@ -100,6 +101,14 @@ describe("SourceTransformer", () => {
     const transformer = new SourceTransformer();
 
     expect(transformer.transform("export const value = 1;", "/repo/src/index.ts")).toBeNull();
+  });
+
+  it("returns null for plugin virtual module ids", () => {
+    const transformer = new SourceTransformer();
+
+    expect(
+      transformer.transform('export default registerTemplate(tmpl);', `${MISSING_TEMPLATE_PREFIX}/repo/lwc/foo/foo.html`),
+    ).toBeNull();
   });
 
   it("returns null for test files that do not use jest helpers", () => {

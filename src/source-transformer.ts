@@ -3,7 +3,12 @@ import path from "node:path";
 
 import type { TransformResult } from "vite";
 
-import { findSfdxProjectRoot } from "./module-resolver.js";
+import {
+  MISSING_STYLE_PREFIX,
+  MISSING_TEMPLATE_PREFIX,
+  SALESFORCE_VIRTUAL_PREFIX,
+  findSfdxProjectRoot,
+} from "./module-resolver.js";
 
 function isLwcSourceFile(id: string): boolean {
   return (
@@ -78,6 +83,14 @@ function transformJestMockCalls(source: string): TransformResult | null {
 
 export class SourceTransformer {
   public transform(source: string, id: string): TransformResult | null {
+    if (
+      id.startsWith(MISSING_STYLE_PREFIX) ||
+      id.startsWith(MISSING_TEMPLATE_PREFIX) ||
+      id.startsWith(SALESFORCE_VIRTUAL_PREFIX)
+    ) {
+      return null;
+    }
+
     if (isTestSourceFile(id)) {
       return transformJestMockCalls(source);
     }

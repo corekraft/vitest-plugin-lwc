@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 
@@ -10,8 +10,24 @@ type ResolveContext = {
   resolve: (source: string, importer?: string, options?: any) => Promise<unknown>;
 };
 
+function normalizeImporterPath(importer: string): string {
+  if (path.isAbsolute(importer)) {
+    if (importer.startsWith(`${path.sep}force-app${path.sep}`)) {
+      return path.join(process.cwd(), importer.slice(1));
+    }
+
+    return importer;
+  }
+
+  if (importer.startsWith(path.sep)) {
+    return path.join(process.cwd(), importer.slice(1));
+  }
+
+  return path.resolve(importer);
+}
+
 export function findSfdxProjectRoot(start: string): string | null {
-  let currentDirectory = path.dirname(start);
+  let currentDirectory = path.dirname(normalizeImporterPath(start));
 
   while (currentDirectory !== path.dirname(currentDirectory)) {
     if (existsSync(path.join(currentDirectory, "sfdx-project.json"))) {
@@ -24,18 +40,40 @@ export function findSfdxProjectRoot(start: string): string | null {
   return null;
 }
 
-function resolveLwcComponent(projectRoot: string, componentName: string): string | null {
-  const componentEntry = path.join(
-    projectRoot,
-    "force-app",
-    "main",
-    "default",
-    "lwc",
-    componentName,
-    `${componentName}.js`,
-  );
+function getPackageDirectories(projectRoot: string): string[] {
+  try {
+    const sfdxProject = JSON.parse(readFileSync(path.join(projectRoot, "sfdx-project.json"), "utf8")) as {
+      packageDirectories?: Array<{ path?: string }>;
+    };
+    const packageDirectories =
+      sfdxProject.packageDirectories
+        ?.map((packageDirectory) => packageDirectory.path)
+        .filter((packageDirectory): packageDirectory is string => typeof packageDirectory === "string" && packageDirectory.length > 0) ?? [];
 
-  return existsSync(componentEntry) ? componentEntry : null;
+    return packageDirectories.length > 0 ? packageDirectories : ["force-app"];
+  } catch {
+    return ["force-app"];
+  }
+}
+
+function resolveLwcComponent(projectRoot: string, componentName: string): string | null {
+  for (const packageDirectory of getPackageDirectories(projectRoot)) {
+    const componentEntry = path.join(
+      projectRoot,
+      packageDirectory,
+      "main",
+      "default",
+      "lwc",
+      componentName,
+      `${componentName}.js`,
+    );
+
+    if (existsSync(componentEntry)) {
+      return componentEntry;
+    }
+  }
+
+  return null;
 }
 
 function isStyleRequest(source: string): boolean {
@@ -44,7 +82,7 @@ function isStyleRequest(source: string): boolean {
 
 function getMissingStyleId(source: string, importer: string): string {
   const [pathname = ""] = source.split("?");
-  return `${MISSING_STYLE_PREFIX}${path.resolve(path.dirname(importer), pathname)}`;
+  return `${MISSING_STYLE_PREFIX}${path.resolve(path.dirname(normalizeImporterPath(importer)), pathname)}`;
 }
 
 function isTemplateRequest(source: string): boolean {
@@ -52,7 +90,7 @@ function isTemplateRequest(source: string): boolean {
 }
 
 function getMissingTemplateId(source: string, importer: string): string {
-  return `${MISSING_TEMPLATE_PREFIX}${path.resolve(path.dirname(importer), source)}`;
+  return `${MISSING_TEMPLATE_PREFIX}${path.resolve(path.dirname(normalizeImporterPath(importer)), source)}`;
 }
 
 function getProjectRequire(projectRoot: string) {
@@ -60,8 +98,14 @@ function getProjectRequire(projectRoot: string) {
 }
 
 function getProjectMock(projectRoot: string, modulePath: string): string | null {
-  const mockPath = path.join(projectRoot, "force-app", "test", "jest-mocks", `${modulePath}.js`);
-  return existsSync(mockPath) ? mockPath : null;
+  for (const packageDirectory of getPackageDirectories(projectRoot)) {
+    const mockPath = path.join(projectRoot, packageDirectory, "test", "jest-mocks", `${modulePath}.js`);
+    if (existsSync(mockPath)) {
+      return mockPath;
+    }
+  }
+
+  return null;
 }
 
 function getLightningStub(projectRoot: string, moduleName: string): string | null {

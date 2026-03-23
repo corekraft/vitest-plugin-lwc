@@ -1,13 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockExistsSync, mockCreateRequire, mockEngineResolve } = vi.hoisted(() => ({
+const { mockExistsSync, mockReadFileSync, mockCreateRequire, mockEngineResolve } = vi.hoisted(() => ({
   mockExistsSync: vi.fn<(path: string) => boolean>(),
+  mockReadFileSync: vi.fn<(path: string) => string>(),
   mockCreateRequire: vi.fn(),
   mockEngineResolve: vi.fn(),
 }));
 
 vi.mock("node:fs", () => ({
   existsSync: mockExistsSync,
+  readFileSync: mockReadFileSync,
 }));
 
 vi.mock("node:module", () => ({
@@ -25,8 +27,19 @@ function createResolveContext() {
 describe("ModuleResolver", () => {
   beforeEach(() => {
     mockExistsSync.mockReset();
+    mockReadFileSync.mockReset();
     mockCreateRequire.mockReset();
     mockEngineResolve.mockReset();
+
+    mockReadFileSync.mockImplementation((candidate) => {
+      if (candidate === "/repo/fixtures/sfdx-project/sfdx-project.json") {
+        return JSON.stringify({
+          packageDirectories: [{ path: "force-app", default: true }],
+        });
+      }
+
+      throw new Error(`Unexpected read: ${candidate}`);
+    });
 
     mockCreateRequire.mockImplementation(() => {
       const projectRequire = ((id: string) => {
@@ -53,6 +66,72 @@ describe("ModuleResolver", () => {
     );
 
     expect(resolved).toBe("/repo/fixtures/sfdx-project/force-app/main/default/lwc/helloWorld/helloWorld.js");
+  });
+
+  it("resolves c/* component imports when the importer path is relative", async () => {
+    const cwdSpy = vi.spyOn(process, "cwd").mockReturnValue("/repo/fixtures/sfdx-project");
+    mockExistsSync.mockImplementation(
+      (candidate) =>
+        candidate === "/repo/fixtures/sfdx-project/sfdx-project.json" ||
+        candidate === "/repo/fixtures/sfdx-project/force-app/main/default/lwc/helloWorld/helloWorld.js",
+    );
+
+    const resolver = new ModuleResolver();
+    const resolved = await resolver.resolve(
+      "c/helloWorld",
+      "force-app/main/default/lwc/helloWorld/__tests__/helloWorld.test.js",
+      createResolveContext(),
+    );
+
+    expect(resolved).toBe("/repo/fixtures/sfdx-project/force-app/main/default/lwc/helloWorld/helloWorld.js");
+
+    cwdSpy.mockRestore();
+  });
+
+  it("resolves c/* component imports when the importer path is root-relative", async () => {
+    const cwdSpy = vi.spyOn(process, "cwd").mockReturnValue("/repo/fixtures/sfdx-project");
+    mockExistsSync.mockImplementation(
+      (candidate) =>
+        candidate === "/repo/fixtures/sfdx-project/sfdx-project.json" ||
+        candidate === "/repo/fixtures/sfdx-project/force-app/main/default/lwc/helloWorld/helloWorld.js",
+    );
+
+    const resolver = new ModuleResolver();
+    const resolved = await resolver.resolve(
+      "c/helloWorld",
+      "/force-app/main/default/lwc/helloWorld/__tests__/helloWorld.test.js",
+      createResolveContext(),
+    );
+
+    expect(resolved).toBe("/repo/fixtures/sfdx-project/force-app/main/default/lwc/helloWorld/helloWorld.js");
+
+    cwdSpy.mockRestore();
+  });
+
+  it("resolves c/* component imports from a package directory declared in sfdx-project.json", async () => {
+    mockReadFileSync.mockImplementation((candidate) => {
+      if (candidate === "/repo/fixtures/sfdx-project/sfdx-project.json") {
+        return JSON.stringify({
+          packageDirectories: [{ path: "packages/ui" }],
+        });
+      }
+
+      throw new Error(`Unexpected read: ${candidate}`);
+    });
+    mockExistsSync.mockImplementation(
+      (candidate) =>
+        candidate === "/repo/fixtures/sfdx-project/sfdx-project.json" ||
+        candidate === "/repo/fixtures/sfdx-project/packages/ui/main/default/lwc/helloWorld/helloWorld.js",
+    );
+
+    const resolver = new ModuleResolver();
+    const resolved = await resolver.resolve(
+      "c/helloWorld",
+      "/repo/fixtures/sfdx-project/packages/ui/main/default/lwc/helloWorld/__tests__/helloWorld.test.js",
+      createResolveContext(),
+    );
+
+    expect(resolved).toBe("/repo/fixtures/sfdx-project/packages/ui/main/default/lwc/helloWorld/helloWorld.js");
   });
 
   it("resolves lwc to the project engine-dom package", async () => {
@@ -172,6 +251,27 @@ describe("ModuleResolver", () => {
     ).resolves.toBeNull();
   });
 
+  it("returns null for component templates that already exist with a root-relative importer", async () => {
+    const cwdSpy = vi.spyOn(process, "cwd").mockReturnValue("/repo/fixtures/sfdx-project");
+    mockExistsSync.mockImplementation(
+      (candidate) =>
+        candidate === "/repo/fixtures/sfdx-project/force-app/main/default/lwc/helloWorld/helloWorld.html" ||
+        candidate === "/repo/fixtures/sfdx-project/force-app/main/default/lwc/helloWorld",
+    );
+
+    const resolver = new ModuleResolver();
+
+    await expect(
+      resolver.resolve(
+        "./helloWorld.html",
+        "/force-app/main/default/lwc/helloWorld/helloWorld.js",
+        createResolveContext(),
+      ),
+    ).resolves.toBeNull();
+
+    cwdSpy.mockRestore();
+  });
+
   it("returns a salesforce virtual id for framework modules", async () => {
     const resolver = new ModuleResolver();
     const resolved = await resolver.resolve(
@@ -224,6 +324,42 @@ describe("ModuleResolver", () => {
         createResolveContext(),
       ),
     ).resolves.toBe("/repo/fixtures/sfdx-project/force-app/test/jest-mocks/schema.js");
+  });
+
+  it("resolves apex and schema mocks from a package directory declared in sfdx-project.json", async () => {
+    mockReadFileSync.mockImplementation((candidate) => {
+      if (candidate === "/repo/fixtures/sfdx-project/sfdx-project.json") {
+        return JSON.stringify({
+          packageDirectories: [{ path: "packages/ui" }],
+        });
+      }
+
+      throw new Error(`Unexpected read: ${candidate}`);
+    });
+    mockExistsSync.mockImplementation(
+      (candidate) =>
+        candidate === "/repo/fixtures/sfdx-project/sfdx-project.json" ||
+        candidate === "/repo/fixtures/sfdx-project/packages/ui/test/jest-mocks/apex.js" ||
+        candidate === "/repo/fixtures/sfdx-project/packages/ui/test/jest-mocks/schema.js",
+    );
+
+    const resolver = new ModuleResolver();
+
+    await expect(
+      resolver.resolve(
+        "@salesforce/apex",
+        "/repo/fixtures/sfdx-project/packages/ui/main/default/lwc/helloWorld/helloWorld.js",
+        createResolveContext(),
+      ),
+    ).resolves.toBe("/repo/fixtures/sfdx-project/packages/ui/test/jest-mocks/apex.js");
+
+    await expect(
+      resolver.resolve(
+        "@salesforce/schema",
+        "/repo/fixtures/sfdx-project/packages/ui/main/default/lwc/helloWorld/helloWorld.js",
+        createResolveContext(),
+      ),
+    ).resolves.toBe("/repo/fixtures/sfdx-project/packages/ui/test/jest-mocks/schema.js");
   });
 
   it("falls back to a virtual id for apex and schema when no project mock exists", async () => {
