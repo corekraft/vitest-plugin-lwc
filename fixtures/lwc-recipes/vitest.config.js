@@ -7,12 +7,8 @@ const require = createRequire(import.meta.url);
 export default defineConfig({
   cacheDir: process.env.VITE_CACHE_DIR ?? "node_modules/.vite",
   plugins: [lwc()],
-  resolve: {
-    alias: {
-      lwc: require.resolve("@lwc/engine-dom")
-    }
-  },
   test: {
+    isolate: false,
     fileParallelism: true,
     globals: true,
     include: ["**/lwc/**/*.test.js"],
@@ -20,6 +16,11 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["clover", "cobertura", "lcov", "text", "text-summary"]
+    }
+  },
+  resolve: {
+    alias: {
+      lwc: require.resolve("@lwc/engine-dom")
     }
   }
 });

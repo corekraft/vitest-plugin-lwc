@@ -4,6 +4,12 @@ import { fakeTimerErrMsg, formatOptions, runA11yCheck } from "@sa11y/matcher";
 
 globalThis.jest = vi;
 
+function cleanupDom() {
+  while (document.body.firstChild) {
+    document.body.removeChild(document.body.firstChild);
+  }
+}
+
 expect.extend({
   async toBeAccessible(received = document, config = defaultRuleset) {
     if (vi.isFakeTimers()) {
@@ -21,6 +27,17 @@ expect.extend({
         })}`
     };
   }
+});
+
+afterEach(() => {
+  cleanupDom();
+  vi.clearAllMocks();
+  vi.clearAllTimers();
+});
+
+afterAll(() => {
+  vi.useRealTimers();
+  vi.resetModules();
 });
 
 await import("jest-canvas-mock");

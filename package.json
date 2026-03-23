@@ -14,7 +14,8 @@
     "test:cov": "vitest run --coverage",
     "pretest:e2e": "npm run pretest",
     "test:e2e": "vitest run --config tests/vitest.config.ts",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:profile": "node ./scripts/profile-fixture-runners.mjs"
   },
   "keywords": [
     "vitest",
