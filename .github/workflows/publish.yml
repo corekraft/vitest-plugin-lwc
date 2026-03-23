@@ -44,8 +44,8 @@ jobs:
 
       - name: Install fixture dependencies
         run: |
-          npm ci --prefix fixtures/sfdx-project
-          npm ci --prefix fixtures/lwc-recipes
+          npm install --prefix fixtures/sfdx-project
+          npm install --prefix fixtures/lwc-recipes
 
       - name: Run e2e tests
         run: pnpm test:e2e
