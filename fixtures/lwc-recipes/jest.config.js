@@ -3,6 +3,8 @@ const setupFilesAfterEnv = jestConfig.setupFilesAfterEnv || [];
 setupFilesAfterEnv.push('<rootDir>/jest-sa11y-setup.js');
 module.exports = {
     ...jestConfig,
+    // Watchman cannot create its state dir in some sandboxed environments; disable it to fall back to Node FS polling
+    watchman: false,
     moduleNameMapper: {
         // Jest mocks
         '^@salesforce/apex$': '<rootDir>/force-app/test/jest-mocks/apex',
