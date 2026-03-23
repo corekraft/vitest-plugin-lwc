@@ -1,2 +1,2 @@
-import { lwc } from "./src/vitest-plugin-lwc.js";
+import { lwc } from "./src/plugin.js";
 export default lwc;

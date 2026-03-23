@@ -21,8 +21,9 @@ vi.mock("node:module", () => ({
   createRequire: mockCreateRequire,
 }));
 
-import { lwc } from "./vitest-plugin-lwc.js";
+import { lwc } from "./plugin.js";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- type caster
 function getHook<T extends (...args: any[]) => any>(hook: unknown): T {
   if (hook && typeof (hook as { handler?: unknown }).handler === "function") {
     return (hook as { handler: T }).handler;
@@ -69,7 +70,9 @@ describe("lwc plugin unit", () => {
   describe("config", () => {
     it("applies the default vitest configuration", () => {
       const plugin = createPlugin();
-      const configHook = getHook<(config: Record<string, unknown>, env: unknown) => Record<string, unknown>>(plugin.config);
+      const configHook = getHook<(config: Record<string, unknown>, env: unknown) => Record<string, unknown>>(
+        plugin.config,
+      );
       const config = configHook.call({}, {}, { command: "serve", mode: "test" });
 
       expect(config).toMatchObject({
@@ -97,7 +100,9 @@ describe("lwc plugin unit", () => {
 
     it("merges user configuration without overwriting managed setup defaults", () => {
       const plugin = createPlugin();
-      const configHook = getHook<(config: Record<string, unknown>, env: unknown) => Record<string, unknown>>(plugin.config);
+      const configHook = getHook<(config: Record<string, unknown>, env: unknown) => Record<string, unknown>>(
+        plugin.config,
+      );
       const config = configHook.call(
         {},
         {
@@ -142,7 +147,9 @@ describe("lwc plugin unit", () => {
 
     it("writes the managed setup module into the project root", () => {
       const plugin = createPlugin();
-      const configHook = getHook<(config: Record<string, unknown>, env: unknown) => Record<string, unknown>>(plugin.config);
+      const configHook = getHook<(config: Record<string, unknown>, env: unknown) => Record<string, unknown>>(
+        plugin.config,
+      );
 
       configHook.call({}, {}, { command: "serve", mode: "test" });
 
@@ -371,7 +378,9 @@ describe("lwc plugin unit", () => {
       ) as { code: string; map: null };
 
       expect(result.code).toContain('import { vi } from "vitest";');
-      expect(result.code).toContain('vi.mock("foo", () => ({ value: vi.fn(), actual: await vi.importActual("foo") }));');
+      expect(result.code).toContain(
+        'vi.mock("foo", () => ({ value: vi.fn(), actual: await vi.importActual("foo") }));',
+      );
       expect(result.code).toContain('await vi.importActual("foo")');
       expect(result.map).toBeNull();
     });

@@ -15,5 +15,5 @@ export default defineConfig([
   {
     ignores: ["fixtures", "node_modules", "coverage", "dist"],
   },
-  eslintConfigPrettier
+  eslintConfigPrettier,
 ]);
