@@ -6,7 +6,8 @@
     "scripts": {
         "lint": "eslint .",
         "test": "npm run test:unit",
-        "test:unit": "sfdx-lwc-jest",
+        "test:unit": "vitest run",
+        "test:unit:old": "sfdx-lwc-jest",
         "test:unit:watch": "sfdx-lwc-jest --watch",
         "test:unit:debug": "sfdx-lwc-jest --debug",
         "test:unit:coverage": "sfdx-lwc-jest --coverage",
@@ -33,6 +34,7 @@
         "url": "git+https://github.com/trailheadapps/lwc-recipes"
     },
     "devDependencies": {
+        "@corekraft/vitest-plugin-lwc": "file:../..",
         "@lwc/eslint-plugin-lwc": "^3.4.0",
         "@prettier/plugin-xml": "^3.4.2",
         "@sa11y/jest": "^8.0.27",
