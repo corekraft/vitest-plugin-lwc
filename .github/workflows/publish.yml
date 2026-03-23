@@ -44,8 +44,8 @@ jobs:
 
       - name: Install fixture dependencies
         run: |
-          npm install --prefix fixtures/sfdx-project
-          npm install --prefix fixtures/lwc-recipes
+          npm ci --prefix fixtures/sfdx-project
+          npm ci --prefix fixtures/lwc-recipes
 
       - name: Run e2e tests
         run: pnpm test:e2e
@@ -59,6 +59,11 @@ jobs:
           @semantic-release/npm
           @semantic-release/github
           conventional-changelog-conventionalcommits
+
+      - name: Copy materials
+        run: |
+          mkdir -p dist
+          cp package.json README.md LICENSE dist
 
       - name: Run semantic-release
         env:

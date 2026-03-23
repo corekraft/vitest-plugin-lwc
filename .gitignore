@@ -12,3 +12,6 @@ dist
 .pnpm-store
 
 .vitest-plugin-lwc
+
+
+.sfdx
