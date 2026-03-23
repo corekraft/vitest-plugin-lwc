@@ -2,8 +2,14 @@
   "name": "@corekraft/vitest-plugin-lwc",
   "version": "1.0.0",
   "description": "Vitest plugin for lwc/ salesforce/ lightning web components",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "files": [
     "dist/**"
   ],
@@ -16,7 +22,7 @@
     "test": "vitest run",
     "pretest:cov": "npm run pretest",
     "test:cov": "vitest run --coverage",
-    "pretest:e2e": "npm run pretest",
+    "pretest:e2e": "npm run build",
     "test:e2e": "vitest run --config tests/vitest.config.ts",
     "prepare": "husky",
     "test:profile": "node ./scripts/profile-fixture-runners.mjs",
