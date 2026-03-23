@@ -51,9 +51,16 @@ export default {
     [
       "@semantic-release/npm",
       {
-        npmPublish: true,
+        npmPublish: false,
         pkgRoot: "dist",
         distTag: isStableRelease ? "latest" : "beta",
+      },
+    ],
+    [
+      "@semantic-release/exec",
+      {
+        publishCmd:
+          'if [ "$SEMANTIC_RELEASE_STABLE" = "true" ]; then npm publish ./dist --provenance --access public --tag latest; else npm publish ./dist --provenance --access public --tag beta; fi',
       },
     ],
     ["@semantic-release/github", githubPluginOptions],
