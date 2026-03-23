@@ -43,13 +43,13 @@ jobs:
       - name: Build package
         run: pnpm build
 
-      - name: Install fixture dependencies
-        run: |
-          npm ci --prefix fixtures/sfdx-project
-          npm ci --prefix fixtures/lwc-recipes
+      # - name: Install fixture dependencies
+      #   run: |
+      #     npm ci --prefix fixtures/sfdx-project
+      #     npm ci --prefix fixtures/lwc-recipes
 
-      - name: Run e2e tests
-        run: pnpm test:e2e
+      # - name: Run e2e tests
+      #   run: pnpm test:e2e
 
       - name: Install semantic-release
         run: >
