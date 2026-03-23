@@ -38,5 +38,5 @@
     "moduleDetection": "force",
     "skipLibCheck": true
   },
-  "exclude": ["**/*.spec.ts", "tests", "fixtures", "dist", "vitest.config.ts"]
+  "exclude": ["**/*.spec.ts", "tests", "fixtures", "dist", "vitest.config.ts", ".releaserc.js"]
 }

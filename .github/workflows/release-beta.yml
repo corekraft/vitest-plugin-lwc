@@ -1,0 +1,13 @@
+name: Publish Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    uses: ./.github/workflows/release-shared.yml
+    with:
+      environment_name: beta
+      stable: false

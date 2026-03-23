@@ -13,7 +13,7 @@ export default defineConfig([
   },
   tseslint.configs.recommended,
   {
-    ignores: ["fixtures", "node_modules", "coverage", "dist"],
+    ignores: ["fixtures", "node_modules", "coverage", "dist", ".releaserc.js"],
   },
   eslintConfigPrettier,
 ]);
