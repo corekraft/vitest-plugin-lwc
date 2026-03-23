@@ -1,3 +1,4 @@
+import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 const { mockExistsSync, mockCreateRequire, mockCompilerTransformSync, mockEngineResolve } = vi.hoisted(() => ({
   mockExistsSync: vi.fn<(path: string) => boolean>(),
@@ -5,9 +6,13 @@ const { mockExistsSync, mockCreateRequire, mockCompilerTransformSync, mockEngine
   mockCompilerTransformSync: vi.fn(),
   mockEngineResolve: vi.fn(),
 }));
+const mockMkdirSync = vi.hoisted(() => vi.fn());
+const mockWriteFileSync = vi.hoisted(() => vi.fn());
 
 vi.mock("node:fs", () => ({
   existsSync: mockExistsSync,
+  mkdirSync: mockMkdirSync,
+  writeFileSync: mockWriteFileSync,
 }));
 
 vi.mock("node:module", () => ({
@@ -30,6 +35,8 @@ describe("lwc plugin unit", () => {
     mockCreateRequire.mockReset();
     mockCompilerTransformSync.mockReset();
     mockEngineResolve.mockReset();
+    mockMkdirSync.mockReset();
+    mockWriteFileSync.mockReset();
 
     mockCreateRequire.mockImplementation(() => {
       const projectRequire = ((id: string) => {
@@ -144,10 +151,79 @@ describe("lwc plugin unit", () => {
 
     expect(resolved).toBe("/repo/node_modules/@lwc/engine-dom/dist/index.js");
     expect(config).toMatchObject({
+      cacheDir: "node_modules/.vite",
+      resolve: {
+        alias: {
+          lwc: "@lwc/engine-dom",
+        },
+      },
       test: {
+        fileParallelism: true,
+        globals: true,
         include: ["src/**/*.spec.ts"],
+        isolate: false,
+        reporters: "dot",
+        setupFiles: [".vitest-plugin-lwc/setup.mjs"],
         environment: "jsdom",
+        coverage: {
+          provider: "v8",
+          reporter: ["clover", "cobertura", "lcov", "text", "text-summary"],
+        },
       },
     });
+  });
+
+  it("appends the plugin setup file without overwriting user setup files or coverage overrides", () => {
+    const plugin = lwc();
+    const configHook = getHook<(config: Record<string, unknown>, env: unknown) => Record<string, unknown>>(plugin.config);
+    const config = configHook.call(
+      {},
+      {
+        cacheDir: ".cache/vite",
+        resolve: {
+          alias: {
+            lwc: "/custom/engine-dom.js",
+          },
+        },
+        test: {
+          setupFiles: ["./custom-setup.js"],
+          coverage: {
+            reporter: ["json"],
+          },
+          reporters: "verbose",
+        },
+      },
+      { command: "serve", mode: "test" },
+    );
+
+    expect(config).toMatchObject({
+      cacheDir: ".cache/vite",
+      resolve: {
+        alias: {
+          lwc: "/custom/engine-dom.js",
+        },
+      },
+      test: {
+        reporters: "verbose",
+        setupFiles: [".vitest-plugin-lwc/setup.mjs", "./custom-setup.js"],
+        coverage: {
+          provider: "v8",
+          reporter: ["json"],
+        },
+      },
+    });
+  });
+
+  it("writes the plugin-managed Vitest setup file into the project root", () => {
+    const plugin = lwc();
+    const configHook = getHook<(config: Record<string, unknown>, env: unknown) => Record<string, unknown>>(plugin.config);
+
+    configHook.call({}, {}, { command: "serve", mode: "test" });
+
+    expect(mockMkdirSync).toHaveBeenCalledWith(expect.stringContaining(".vitest-plugin-lwc"), { recursive: true });
+    expect(mockWriteFileSync).toHaveBeenCalledWith(
+      expect.stringContaining(path.join(".vitest-plugin-lwc", "setup.mjs")),
+      expect.stringContaining('globalThis.jest = vi;'),
+    );
   });
 });
