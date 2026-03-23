@@ -15,7 +15,7 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    environment: ${{ github.event_name == 'workflow_dispatch' && 'stable' || 'beta' }}
+    environment: release
     steps:
       - name: Checkout
         uses: actions/checkout@v5
