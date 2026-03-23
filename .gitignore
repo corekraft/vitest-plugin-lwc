@@ -10,3 +10,5 @@ dist
 .tmp
 
 .pnpm-store
+
+.vitest-plugin-lwc

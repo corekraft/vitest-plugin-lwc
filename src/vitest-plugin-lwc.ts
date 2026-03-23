@@ -350,7 +350,7 @@ export function lwc(): Plugin {
             ...(currentTest["coverage"] as Record<string, unknown> | undefined),
           },
           environment: currentTest["environment"] ?? "jsdom",
-          reporters: currentTest["reporters"] ?? "dot",
+          reporters: currentTest["reporters"] ?? "default",
         },
       };
     },

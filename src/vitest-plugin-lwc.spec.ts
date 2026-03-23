@@ -162,7 +162,7 @@ describe("lwc plugin unit", () => {
         globals: true,
         include: ["src/**/*.spec.ts"],
         isolate: false,
-        reporters: "dot",
+        reporters: "default",
         setupFiles: [".vitest-plugin-lwc/setup.mjs"],
         environment: "jsdom",
         coverage: {
