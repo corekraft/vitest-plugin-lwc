@@ -1,0 +1,3 @@
+[submodule "fixtures/lwc-recipes"]
+	path = fixtures/lwc-recipes
+	url = git@github.com:trailheadapps/lwc-recipes.git
