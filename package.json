@@ -5,9 +5,14 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
+    "lint": "eslint",
+    "prettier": "prettier --write .",
     "build": "tsc",
+    "pretest": "tsc -p tsconfig.vitest.json",
     "test": "vitest run",
+    "pretest:cov": "npm run pretest",
     "test:cov": "vitest run --coverage",
+    "pretest:e2e": "npm run pretest",
     "test:e2e": "vitest run --config tests/vitest.config.ts",
     "prepare": "husky"
   },
@@ -23,12 +28,17 @@
   "license": "ISC",
   "packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^25.5.0",
+    "@vitest/coverage-v8": "4.1.0",
     "eslint": "^10.1.0",
+    "globals": "^17.4.0",
     "husky": "^9.1.7",
+    "jiti": "^2.6.1",
     "lint-staged": "^16.4.0",
     "prettier": "^3.8.1",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.1",
     "vite": "^8.0.1",
     "vitest": "4.1.0"
   },
@@ -37,5 +47,12 @@
       "eslint --fix",
       "prettier --write"
     ]
+  },
+  "prettier": {
+    "tabWidth": 2,
+    "semi": true,
+    "useTabs": false,
+    "printWidth": 120,
+    "singleQuote": false
   }
 }

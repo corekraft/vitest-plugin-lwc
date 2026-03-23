@@ -1,16 +1,16 @@
-import { existsSync } from 'node:fs';
-import { createRequire } from 'node:module';
-import path from 'node:path';
+import { existsSync } from "node:fs";
+import { createRequire } from "node:module";
+import path from "node:path";
 
-import type { Plugin, TransformResult } from 'vite';
+import type { Plugin, TransformResult } from "vite";
 
-const MISSING_STYLE_PREFIX = '\0vitest-plugin-lwc:missing-style:';
+const MISSING_STYLE_PREFIX = "\0vitest-plugin-lwc:missing-style:";
 
 function findSfdxProjectRoot(start: string): string | null {
   let currentDirectory = path.dirname(start);
 
   while (currentDirectory !== path.dirname(currentDirectory)) {
-    if (existsSync(path.join(currentDirectory, 'sfdx-project.json'))) {
+    if (existsSync(path.join(currentDirectory, "sfdx-project.json"))) {
       return currentDirectory;
     }
 
@@ -20,16 +20,13 @@ function findSfdxProjectRoot(start: string): string | null {
   return null;
 }
 
-function resolveLwcComponent(
-  projectRoot: string,
-  componentName: string,
-): string | null {
+function resolveLwcComponent(projectRoot: string, componentName: string): string | null {
   const componentEntry = path.join(
     projectRoot,
-    'force-app',
-    'main',
-    'default',
-    'lwc',
+    "force-app",
+    "main",
+    "default",
+    "lwc",
     componentName,
     `${componentName}.js`,
   );
@@ -38,17 +35,15 @@ function resolveLwcComponent(
 }
 
 function isLwcSourceFile(id: string): boolean {
-  return (
-    /\.(js|ts|html|css)$/.test(id) && id.includes(`${path.sep}lwc${path.sep}`)
-  );
+  return /\.(js|ts|html|css)$/.test(id) && id.includes(`${path.sep}lwc${path.sep}`);
 }
 
 function isStyleRequest(source: string): boolean {
-  return source.endsWith('.css') || source.includes('.scoped.css?scoped=true');
+  return source.endsWith(".css") || source.includes(".scoped.css?scoped=true");
 }
 
 function getMissingStyleId(source: string, importer: string): string {
-  const [pathname = ''] = source.split('?');
+  const [pathname = ""] = source.split("?");
   return `${MISSING_STYLE_PREFIX}${path.resolve(path.dirname(importer), pathname)}`;
 }
 
@@ -57,8 +52,8 @@ function getComponentName(id: string): string {
 }
 
 function loadLwcCompiler(projectRoot: string) {
-  const projectRequire = createRequire(path.join(projectRoot, 'package.json'));
-  return projectRequire('@lwc/compiler') as {
+  const projectRequire = createRequire(path.join(projectRoot, "package.json"));
+  return projectRequire("@lwc/compiler") as {
     transformSync: (
       source: string,
       filename: string,
@@ -71,21 +66,17 @@ function loadLwcCompiler(projectRoot: string) {
   };
 }
 
-function transformComponentSource(
-  source: string,
-  id: string,
-  projectRoot: string,
-): TransformResult {
+function transformComponentSource(source: string, id: string, projectRoot: string): TransformResult {
   const compiler = loadLwcCompiler(projectRoot);
   const result = compiler.transformSync(source, id, {
     name: getComponentName(id),
-    namespace: 'c',
+    namespace: "c",
     outputConfig: {
       sourcemap: true,
     },
   });
 
-  const map = (result.map ?? null) as TransformResult['map'];
+  const map = (result.map ?? null) as TransformResult["map"];
 
   return {
     code: result.code,
@@ -95,7 +86,7 @@ function transformComponentSource(
 
 export function lwc(): Plugin {
   return {
-    name: 'vitest-plugin-lwc',
+    name: "vitest-plugin-lwc",
     config(userConfig, _env) {
       void _env;
       const configWithTest = userConfig as typeof userConfig & {
@@ -106,31 +97,29 @@ export function lwc(): Plugin {
         ...userConfig,
         test: {
           ...configWithTest.test,
-          environment: 'jsdom',
+          environment: "jsdom",
         },
       };
     },
     async resolveId(source, importer) {
-      if (importer && source.startsWith('./') && isStyleRequest(source)) {
+      if (importer && source.startsWith("./") && isStyleRequest(source)) {
         const styleId = getMissingStyleId(source, importer);
         const missingStylePath = styleId.slice(MISSING_STYLE_PREFIX.length);
 
         return existsSync(missingStylePath) ? null : styleId;
       }
 
-      if (source === 'lwc') {
+      if (source === "lwc") {
         const projectRoot = importer ? findSfdxProjectRoot(importer) : null;
         if (!projectRoot) {
           return null;
         }
 
-        const projectRequire = createRequire(
-          path.join(projectRoot, 'package.json'),
-        );
-        return projectRequire.resolve('@lwc/engine-dom');
+        const projectRequire = createRequire(path.join(projectRoot, "package.json"));
+        return projectRequire.resolve("@lwc/engine-dom");
       }
 
-      if (!source.startsWith('c/') || !importer) {
+      if (!source.startsWith("c/") || !importer) {
         return null;
       }
 
@@ -146,7 +135,7 @@ export function lwc(): Plugin {
         return null;
       }
 
-      return 'export default undefined';
+      return "export default undefined";
     },
     transform(source, id) {
       if (!isLwcSourceFile(id)) {
@@ -162,5 +151,3 @@ export function lwc(): Plugin {
     },
   };
 }
-
-export const plugin = lwc;
