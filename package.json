@@ -23,7 +23,7 @@
     "test:e2e": "vitest run --config tests/vitest.config.ts",
     "prepare": "husky",
     "test:profile": "node ./scripts/profile-fixture-runners.mjs",
-    "prepublishOnly": "npm run build && cp package.json README.md LICENSE dist"
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "vitest",
