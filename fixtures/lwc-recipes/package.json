@@ -37,7 +37,7 @@
         "url": "git+https://github.com/trailheadapps/lwc-recipes"
     },
     "devDependencies": {
-        "@corekraft/vitest-plugin-lwc": "file:../..",
+        "@corekraft/vitest-plugin-lwc": "file:../../dist",
         "@lwc/eslint-plugin-lwc": "^3.4.0",
         "@prettier/plugin-xml": "^3.4.2",
         "@sa11y/jest": "^8.0.27",

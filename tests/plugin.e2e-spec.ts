@@ -7,6 +7,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const execFileAsync = promisify(execFile);
 const packageRoot = path.resolve(import.meta.dirname, "..");
+const packageDist = path.join(packageRoot, "dist");
 const nodePath = [path.join(packageRoot, "node_modules"), process.env.NODE_PATH].filter(Boolean).join(path.delimiter);
 const fixtures = [
   {
@@ -38,7 +39,7 @@ describe("lwc plugin end to end", () => {
 
         mkdirSync(path.dirname(linkPath), { recursive: true });
         rmSync(linkPath, { force: true, recursive: true });
-        symlinkSync(packageRoot, linkPath, "junction");
+        symlinkSync(packageDist, linkPath, "junction");
         createdLinkPaths.push(linkPath);
       }
     }
