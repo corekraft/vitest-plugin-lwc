@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Vitest plugin for lwc/ salesforce/ lightning web components",
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "scripts": {
     "lint": "eslint",
@@ -23,7 +26,8 @@
     "salesforce",
     "sfdx",
     "sf-cli",
-    "unit-test"
+    "unit-test",
+    "jest"
   ],
   "author": "Jun Jose <junners>",
   "license": "ISC",

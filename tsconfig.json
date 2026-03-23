@@ -13,9 +13,9 @@
     // and npm install -D @types/node
 
     // Other Outputs
-    "sourceMap": true,
+    "sourceMap": false,
     "declaration": true,
-    "declarationMap": true,
+    "declarationMap": false,
 
     // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
@@ -38,5 +38,5 @@
     "moduleDetection": "force",
     "skipLibCheck": true
   },
-  "exclude": ["**/*.spec.ts", "tests", "fixtures", "dist", "vitest.config.ts", ".releaserc.js"]
+  "exclude": ["**/*.spec.ts", "tests", "fixtures", "dist", "vitest.config.ts", ".releaserc.js", "eslint.config.ts"]
 }
