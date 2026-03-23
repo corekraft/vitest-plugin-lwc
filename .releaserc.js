@@ -1,5 +1,4 @@
-const isStableRelease =
-  process.env.SEMANTIC_RELEASE_STABLE === "true" || process.env.RELEASE_CHANNEL === "stable";
+const isStableRelease = process.env.SEMANTIC_RELEASE_STABLE === "true";
 
 const branches = isStableRelease ? ["master"] : [{ name: "master", channel: "beta", prerelease: "beta" }];
 const githubPluginOptions = isStableRelease
@@ -33,11 +32,9 @@ export default {
       "@semantic-release/npm",
       {
         npmPublish: true,
+        pkgRoot: "dist",
       },
     ],
-    [
-      "@semantic-release/github",
-      githubPluginOptions,
-    ],
+    ["@semantic-release/github", githubPluginOptions],
   ],
 };
