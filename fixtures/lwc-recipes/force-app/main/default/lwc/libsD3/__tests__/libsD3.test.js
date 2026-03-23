@@ -12,6 +12,10 @@ const LOAD_SCRIPT_ERROR = {
 };
 
 describe('c-libs-d3', () => {
+    function normalizeResourcePath(value) {
+        return value.replace(/^https?:\/\/localhost(?::\d+)?\//, '');
+    }
+
     afterEach(() => {
         // The jsdom instance is shared across test cases in a single file so reset the DOM
         while (document.body.firstChild) {
@@ -56,8 +60,12 @@ describe('c-libs-d3', () => {
         expect(loadStyle.mock.calls.length).toBe(1);
 
         // Validation that the D3 JS and CSS files are passed as parameters.
-        expect(loadScript.mock.calls[0][1]).toEqual(D3_JS);
-        expect(loadStyle.mock.calls[0][1]).toEqual(D3_CSS);
+        expect(normalizeResourcePath(loadScript.mock.calls[0][1])).toEqual(
+            D3_JS
+        );
+        expect(normalizeResourcePath(loadStyle.mock.calls[0][1])).toEqual(
+            D3_CSS
+        );
     });
 
     it('fires a toast event if the static resource cannot be loaded', async () => {

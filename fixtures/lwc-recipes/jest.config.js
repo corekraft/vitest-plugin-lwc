@@ -3,6 +3,9 @@ const setupFilesAfterEnv = jestConfig.setupFilesAfterEnv || [];
 setupFilesAfterEnv.push('<rootDir>/jest-sa11y-setup.js');
 module.exports = {
     ...jestConfig,
+    ...(process.env.JEST_CACHE_DIR
+        ? { cacheDirectory: process.env.JEST_CACHE_DIR }
+        : {}),
     // Watchman cannot create its state dir in some sandboxed environments; disable it to fall back to Node FS polling
     watchman: false,
     moduleNameMapper: {

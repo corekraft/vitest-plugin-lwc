@@ -5,6 +5,11 @@ import opportunitiesStateManager from 'c/opportunitiesStateManager';
 import StateManager from 'c/stateManager';
 import { graphql } from 'lightning/graphql';
 
+jest.mock('c/opportunitiesStateManager', () => ({
+    __esModule: true,
+    default: jest.fn()
+}));
+
 jest.mock('@lwc/state', () => {
     const actual = jest.requireActual('@lwc/state');
     return {
@@ -12,11 +17,6 @@ jest.mock('@lwc/state', () => {
         fromContext: jest.fn()
     };
 });
-
-jest.mock('c/opportunitiesStateManager', () => ({
-    __esModule: true,
-    default: jest.fn()
-}));
 
 // Mock data
 const mockAllOpportunities = require('./data/graphqlAllOpportunities.json');

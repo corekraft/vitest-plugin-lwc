@@ -5,3 +5,8 @@ coverage
 
 # Output
 dist
+
+# temp directory
+.tmp
+
+.pnpm-store

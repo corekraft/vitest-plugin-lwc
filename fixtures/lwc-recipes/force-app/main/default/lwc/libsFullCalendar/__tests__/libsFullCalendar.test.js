@@ -11,6 +11,10 @@ const LOAD_SCRIPT_ERROR = {
 };
 
 describe('c-libs-full-calendar', () => {
+    function normalizeResourcePath(value) {
+        return value.replace(/^https?:\/\/localhost(?::\d+)?\//, '');
+    }
+
     afterEach(() => {
         // The jsdom instance is shared across test cases in a single file so reset the DOM
         while (document.body.firstChild) {
@@ -55,8 +59,12 @@ describe('c-libs-full-calendar', () => {
         expect(loadStyle.mock.calls.length).toBe(1);
 
         // Validation that the JS and CSS files are passed as parameters.
-        expect(loadScript.mock.calls[0][1]).toEqual(FULL_CALENDAR_JS);
-        expect(loadStyle.mock.calls[0][1]).toEqual(FULL_CALENDAR_CSS);
+        expect(normalizeResourcePath(loadScript.mock.calls[0][1])).toEqual(
+            FULL_CALENDAR_JS
+        );
+        expect(normalizeResourcePath(loadStyle.mock.calls[0][1])).toEqual(
+            FULL_CALENDAR_CSS
+        );
     });
 
     it('displays error panel if the static resource cannot be loaded', async () => {

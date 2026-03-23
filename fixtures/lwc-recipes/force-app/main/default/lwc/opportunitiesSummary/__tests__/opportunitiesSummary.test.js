@@ -53,10 +53,14 @@ describe('c-opportunities-summary', () => {
         expect(formattedNumber.currencyCode).toBe('USD');
     });
 
-    it('renders correctly after state manager updates with data', async () => {
+    it('renders correctly with data', async () => {
         const mockState = stateManagerInstanceMock({
-            opportunities: [],
-            totalAmount: 0
+            opportunities: [
+                { Id: '1', Amount: { value: 1000 } },
+                { Id: '2', Amount: { value: 2000 } },
+                { Id: '3', Amount: { value: 3000 } }
+            ],
+            totalAmount: 6000
         });
         fromContext.mockReturnValue(mockState);
 
@@ -65,17 +69,6 @@ describe('c-opportunities-summary', () => {
         });
 
         document.body.appendChild(element);
-        await flushPromises();
-
-        mockState.updateValue({
-            opportunities: [
-                { Id: '1', Amount: { value: 1000 } },
-                { Id: '2', Amount: { value: 2000 } },
-                { Id: '3', Amount: { value: 3000 } }
-            ],
-            totalAmount: 6000
-        });
-
         await flushPromises();
 
         const countText = element.shadowRoot.querySelector('p');

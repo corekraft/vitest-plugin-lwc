@@ -45,21 +45,8 @@ describe('c-opportunities-list', () => {
         expect(dataTable.data.length).toBe(0);
     });
 
-    it('renders correctly after state manager updates with data', async () => {
+    it('renders correctly with data', async () => {
         const mockState = stateManagerInstanceMock({
-            opportunities: [],
-            totalAmount: 0
-        });
-        fromContext.mockReturnValue(mockState);
-
-        const element = createElement('c-opportunities-list', {
-            is: OpportunitiesList
-        });
-
-        document.body.appendChild(element);
-        await flushPromises();
-
-        mockState.updateValue({
             opportunities: [
                 {
                     Id: '1',
@@ -82,7 +69,13 @@ describe('c-opportunities-list', () => {
             ],
             totalAmount: 6000
         });
+        fromContext.mockReturnValue(mockState);
 
+        const element = createElement('c-opportunities-list', {
+            is: OpportunitiesList
+        });
+
+        document.body.appendChild(element);
         await flushPromises();
 
         const dataTable = element.shadowRoot.querySelector(

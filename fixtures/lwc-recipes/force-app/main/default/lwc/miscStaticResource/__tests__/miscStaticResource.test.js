@@ -2,6 +2,10 @@ import { createElement } from '@lwc/engine-dom';
 import MiscStaticResource from 'c/miscStaticResource';
 
 describe('c-misc-static-resource', () => {
+    function normalizeResourcePath(value) {
+        return value.replace(/^https?:\/\/localhost(?::\d+)?\//, '');
+    }
+
     afterEach(() => {
         // The jsdom instance is shared across test cases in a single file so reset the DOM
         while (document.body.firstChild) {
@@ -22,7 +26,9 @@ describe('c-misc-static-resource', () => {
         );
         expect(imgTrailheadEl).not.toBeNull();
         // sfdx-lwc-jest automocks @salesforce/resourceUsl, and returns localhost/name_of_resource.
-        expect(imgTrailheadEl.src).toBe('http://localhost/trailhead_logo');
+        expect(normalizeResourcePath(imgTrailheadEl.src)).toBe(
+            'trailhead_logo'
+        );
 
         // Query for img element that uses a static image resource within a zip file
         const imgEinsteinEl = element.shadowRoot.querySelector(
@@ -30,8 +36,8 @@ describe('c-misc-static-resource', () => {
         );
         expect(imgEinsteinEl).not.toBeNull();
         // sfdx-lwc-jest automocks @salesforce/resourceUsl, and returns localhost/name_of_resource.
-        expect(imgEinsteinEl.src).toBe(
-            'http://localhost/trailhead_characters/images/einstein.png'
+        expect(normalizeResourcePath(imgEinsteinEl.src)).toBe(
+            'trailhead_characters/images/einstein.png'
         );
     });
 

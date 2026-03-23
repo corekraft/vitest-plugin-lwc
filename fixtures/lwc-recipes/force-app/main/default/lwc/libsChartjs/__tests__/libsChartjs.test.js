@@ -11,6 +11,10 @@ const LOAD_SCRIPT_ERROR = {
 };
 
 describe('c-libs-chartjs', () => {
+    function normalizeResourcePath(value) {
+        return value.replace(/^https?:\/\/localhost(?::\d+)?\//, '');
+    }
+
     afterEach(() => {
         // The jsdom instance is shared across test cases in a single file so reset the DOM
         while (document.body.firstChild) {
@@ -51,7 +55,9 @@ describe('c-libs-chartjs', () => {
         // Validation that the loadScript and loadStyle promises are each called once.
         expect(loadScript.mock.calls.length).toBe(1);
         // Validation that the chartjs js and css static resources are each passed as parameters.
-        expect(loadScript.mock.calls[0][1]).toEqual(CHARTJS_JS);
+        expect(normalizeResourcePath(loadScript.mock.calls[0][1])).toEqual(
+            CHARTJS_JS
+        );
     });
 
     it('shows the error panel element on static resource load error', async () => {
