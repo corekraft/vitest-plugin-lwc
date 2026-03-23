@@ -66,7 +66,7 @@ jobs:
         run: |
           mkdir -p dist
           cp package.json README.md LICENSE dist
-          node -e "const fs = require('node:fs'); const packagePath = 'dist/package.json'; const pkg = JSON.parse(fs.readFileSync(packagePath, 'utf8')); delete pkg.scripts; delete pkg.devDependencies; delete pkg.packageManager; delete pkg['lint-staged']; delete pkg.prettier; fs.writeFileSync(packagePath, JSON.stringify(pkg, null, 2) + '\n');"
+          node -e "const fs = require('node:fs'); const { execSync } = require('node:child_process'); const packagePath = 'dist/package.json'; const pkg = JSON.parse(fs.readFileSync(packagePath, 'utf8')); const latestTag = execSync('git describe --tags --abbrev=0', { encoding: 'utf8' }).trim(); pkg.version = latestTag.replace(/^v/, ''); delete pkg.scripts; delete pkg.devDependencies; delete pkg.packageManager; delete pkg['lint-staged']; delete pkg.prettier; fs.writeFileSync(packagePath, JSON.stringify(pkg, null, 2) + '\n');"
 
       - name: Run semantic-release
         env:
