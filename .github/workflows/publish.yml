@@ -1,3 +1,4 @@
+---
 name: Publish
 
 on:
@@ -43,13 +44,8 @@ jobs:
       - name: Build package
         run: pnpm build
 
-      # - name: Install fixture dependencies
-      #   run: |
-      #     npm ci --prefix fixtures/sfdx-project
-      #     npm ci --prefix fixtures/lwc-recipes
-
-      # - name: Run e2e tests
-      #   run: pnpm test:e2e
+      - name: Debug Registry URL
+        run: npm config ls -l
 
       - name: Install semantic-release
         run: >
@@ -73,6 +69,7 @@ jobs:
       - name: Run semantic-release
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
