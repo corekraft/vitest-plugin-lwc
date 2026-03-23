@@ -69,7 +69,6 @@ jobs:
       - name: Run semantic-release
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             SEMANTIC_RELEASE_STABLE=true semantic-release
