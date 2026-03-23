@@ -1,4 +1,4 @@
-import { mkdirSync, rmSync, symlinkSync } from "node:fs";
+import { existsSync, mkdirSync, rmSync, symlinkSync } from "node:fs";
 import { promisify } from "node:util";
 import { execFile } from "node:child_process";
 import path from "node:path";
@@ -8,11 +8,6 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 const execFileAsync = promisify(execFile);
 const packageRoot = path.resolve(import.meta.dirname, "..");
 const nodePath = [path.join(packageRoot, "node_modules"), process.env.NODE_PATH].filter(Boolean).join(path.delimiter);
-const fixturePackageLinkPaths = [
-  path.join(packageRoot, "fixtures/sfdx-project/node_modules/@corekraft/vitest-plugin-lwc"),
-  path.join(packageRoot, "fixtures/lwc-recipes/node_modules/@corekraft/vitest-plugin-lwc"),
-];
-
 const fixtures = [
   {
     name: "sfdx-project",
@@ -27,16 +22,24 @@ const fixtures = [
 ];
 
 describe("lwc plugin end to end", () => {
+  const createdLinkPaths: string[] = [];
+
   beforeAll(() => {
-    for (const linkPath of fixturePackageLinkPaths) {
+    for (const fixture of fixtures) {
+      const linkPath = path.join(fixture.root, "node_modules/@corekraft/vitest-plugin-lwc");
+      if (existsSync(linkPath)) {
+        continue;
+      }
+
       mkdirSync(path.dirname(linkPath), { recursive: true });
       rmSync(linkPath, { force: true, recursive: true });
       symlinkSync(packageRoot, linkPath, "junction");
+      createdLinkPaths.push(linkPath);
     }
   });
 
   afterAll(() => {
-    for (const linkPath of fixturePackageLinkPaths) {
+    for (const linkPath of createdLinkPaths) {
       rmSync(linkPath, { force: true, recursive: true });
     }
   });
