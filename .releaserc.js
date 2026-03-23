@@ -1,19 +1,16 @@
 const isStableRelease = process.env.SEMANTIC_RELEASE_STABLE === "true";
 
-const branches = isStableRelease ? ["master"] : [{ name: "master", channel: "beta", prerelease: "beta" }];
 const githubPluginOptions = isStableRelease
   ? {}
   : {
-      successComment: false,
-      failComment: false,
-      releasedLabels: false,
+      releasedLabels: [],
     };
 
 /**
  * @type {import('semantic-release').GlobalConfig}
  */
 export default {
-  branches,
+  branches: ["master"],
   tagFormat: "v${version}",
   plugins: [
     [
@@ -33,6 +30,7 @@ export default {
       {
         npmPublish: true,
         pkgRoot: "dist",
+        distTag: isStableRelease ? "latest" : "beta",
       },
     ],
     ["@semantic-release/github", githubPluginOptions],
